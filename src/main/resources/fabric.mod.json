@@ -1,0 +1,22 @@
+{
+	"schemaVersion": 1,
+	"id": "motioncamera",
+	"version": "${version}",
+	"name": "Motion Camera",
+	"description": "Smooth camera after throwing an ender pearl (Motion Camera - PearlException only). Client-side, visual only.",
+	"authors": ["You"],
+	"license": "MIT",
+	"environment": "client",
+	"entrypoints": {
+		"client": ["dev.motioncamera.MotionCameraMod"]
+	},
+	"mixins": [
+		{ "config": "motioncamera.mixins.json", "environment": "client" }
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
