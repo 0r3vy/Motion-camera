@@ -24,8 +24,6 @@ public final class MotionCameraState {
 
 	// camera đã làm mượt (tick hiện tại / trước)
 	private static double x, y, z, px, py, pz;
-	// vị trí mắt thật mỗi tick (tick hiện tại / trước) - làm mốc để tính độ lệch
-	private static double tx, ty, tz, ptx, pty, ptz;
 
 	private static long lastPearlSeen = NEVER;
 	private static boolean smoothing;
@@ -84,16 +82,14 @@ public final class MotionCameraState {
 		boolean farAway = dx * dx + dy * dy + dz * dz > SNAP_DIST_SQ;
 
 		if (needSnap || farAway) {
-			x = px = tx = ptx = ex;
-			y = py = ty = pty = ey;
-			z = pz = tz = ptz = ez;
+			x = px = ex;
+			y = py = ey;
+			z = pz = ez;
 			needSnap = false;
 			return;
 		}
 
 		px = x; py = y; pz = z;
-		ptx = tx; pty = ty; ptz = tz;
-		tx = ex; ty = ey; tz = ez;
 
 		if (!smoothing) {
 			// Bám sát vị trí thật để khi cửa sổ mở, camera bắt đầu đúng chỗ.
@@ -107,23 +103,18 @@ public final class MotionCameraState {
 		}
 	}
 
-	public static boolean isActive(Minecraft mc, Entity cameraEntity) {
-		return smoothing && !broken && cameraEntity != null && cameraEntity == mc.player && cameraEntity == lastPlayer;
+	public static boolean isActive(Minecraft mc) {
+		Entity cam = mc.getCameraEntity();
+		return smoothing && !broken && cam != null && cam == mc.player && cam == lastPlayer;
 	}
 
-	/**
-	 * Độ lệch (camera mượt - mắt thật) đã nội suy theo partial tick.
-	 * Mixin cộng độ lệch này vào vị trí camera vanilla nên giữ nguyên
-	 * cách vanilla tính third-person, va chạm, eye height khi ngồi...
-	 */
-	public static double[] offset(float partial) {
-		double sx = px + (x - px) * partial;
-		double sy = py + (y - py) * partial;
-		double sz = pz + (z - pz) * partial;
-		double rx = ptx + (tx - ptx) * partial;
-		double ry = pty + (ty - pty) * partial;
-		double rz = ptz + (tz - ptz) * partial;
-		return new double[] { sx - rx, sy - ry, sz - rz };
+	/** Vị trí mắt đã làm mượt, nội suy theo partial tick. */
+	public static double[] position(float partial) {
+		return new double[] {
+				px + (x - px) * partial,
+				py + (y - py) * partial,
+				pz + (z - pz) * partial
+		};
 	}
 
 	public static void fail(String where, Throwable t) {
