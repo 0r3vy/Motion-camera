@@ -21,6 +21,11 @@ public final class MotionCameraConfig {
 	public double firstPersonSpeed = 0.3;
 	/** Giữ hiệu ứng mượt bao lâu (ms) sau khi pearl của bạn không còn bay. */
 	public int exceptionDuration = 1500;
+	/**
+	 * Camera không được trễ quá số block này so với vị trí thật (0 = không giới hạn).
+	 * Giữ tâm ngắm không lệch quá xa, quan trọng cho crystal PvP.
+	 */
+	public double maxOffset = 6.0;
 
 	private static MotionCameraConfig instance = new MotionCameraConfig();
 
@@ -35,7 +40,6 @@ public final class MotionCameraConfig {
 					MotionCameraConfig c = GSON.fromJson(Files.readString(FILE), MotionCameraConfig.class);
 					if (c != null) instance = c;
 				} catch (Exception parseError) {
-					// File hỏng: sao lưu rồi dùng mặc định thay vì crash.
 					Files.move(FILE, FILE.resolveSibling("motioncamera.json.bad"), StandardCopyOption.REPLACE_EXISTING);
 					instance = new MotionCameraConfig();
 					MotionCameraMod.LOGGER.warn("Config lỗi, đã sao lưu thành motioncamera.json.bad và dùng mặc định");
@@ -63,6 +67,7 @@ public final class MotionCameraConfig {
 		c.speed = clean(c.speed, 0.25);
 		c.firstPersonSpeed = clean(c.firstPersonSpeed, 0.3);
 		c.exceptionDuration = Math.clamp(c.exceptionDuration, 100, 10000);
+		c.maxOffset = (Double.isNaN(c.maxOffset) || Double.isInfinite(c.maxOffset)) ? 6.0 : Math.clamp(c.maxOffset, 0.0, 64.0);
 	}
 
 	private static double clean(double v, double fallback) {

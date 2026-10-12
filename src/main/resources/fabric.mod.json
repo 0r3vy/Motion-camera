@@ -4,8 +4,14 @@
 	"version": "${version}",
 	"name": "Motion Camera (Pearl)",
 	"description": "Smooth camera after throwing an ender pearl. Client-side, visual only.",
-	"authors": ["You"],
+	"authors": ["0r3vy"],
+	"contact": {
+		"homepage": "https://github.com/0r3vy/Motion-camera",
+		"sources": "https://github.com/0r3vy/Motion-camera",
+		"issues": "https://github.com/0r3vy/Motion-camera/issues"
+	},
 	"license": "MIT",
+	"icon": "assets/motioncamera/icon.png",
 	"environment": "client",
 	"entrypoints": {
 		"client": ["dev.motioncamera.MotionCameraMod"]

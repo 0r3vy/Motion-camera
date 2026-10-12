@@ -24,7 +24,7 @@ public class MotionCameraMod implements ClientModInitializer {
 		MotionCameraConfig.load();
 		ClientTickEvents.END_CLIENT_TICK.register(MotionCameraState::tick);
 
-		// /motioncamera toggle | status | reload | speed <v> | fpspeed <v> | duration <ms>
+		// /motioncamera toggle | status | reload | speed <v> | fpspeed <v> | duration <ms> | maxoffset <blocks>
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
 				dispatcher.register(ClientCommandManager.literal("motioncamera")
 						.then(ClientCommandManager.literal("toggle").executes(ctx -> {
@@ -38,7 +38,7 @@ public class MotionCameraMod implements ClientModInitializer {
 							MotionCameraConfig c = MotionCameraConfig.get();
 							ctx.getSource().sendFeedback(Component.literal("Motion Camera: " + (c.enabled ? "ON" : "OFF")
 									+ " | speed=" + c.speed + " | fpspeed=" + c.firstPersonSpeed
-									+ " | duration=" + c.exceptionDuration + "ms"));
+									+ " | duration=" + c.exceptionDuration + "ms | maxoffset=" + c.maxOffset));
 							return Command.SINGLE_SUCCESS;
 						}))
 						.then(ClientCommandManager.literal("reload").executes(ctx -> {
@@ -46,15 +46,16 @@ public class MotionCameraMod implements ClientModInitializer {
 							ctx.getSource().sendFeedback(Component.literal("Motion Camera: đã tải lại config"));
 							return Command.SINGLE_SUCCESS;
 						}))
-						.then(doubleCommand("speed", v -> MotionCameraConfig.get().speed = v))
-						.then(doubleCommand("fpspeed", v -> MotionCameraConfig.get().firstPersonSpeed = v))
+						.then(doubleCommand("speed", 0.02, 1.0, v -> MotionCameraConfig.get().speed = v))
+						.then(doubleCommand("fpspeed", 0.02, 1.0, v -> MotionCameraConfig.get().firstPersonSpeed = v))
+						.then(doubleCommand("maxoffset", 0.0, 64.0, v -> MotionCameraConfig.get().maxOffset = v))
 						.then(intCommand("duration", v -> MotionCameraConfig.get().exceptionDuration = v))
 				));
 	}
 
-	private static LiteralArgumentBuilder<FabricClientCommandSource> doubleCommand(String name, DoubleConsumer setter) {
+	private static LiteralArgumentBuilder<FabricClientCommandSource> doubleCommand(String name, double min, double max, DoubleConsumer setter) {
 		return ClientCommandManager.literal(name).then(
-				ClientCommandManager.argument("value", DoubleArgumentType.doubleArg(0.02, 1.0)).executes(ctx -> {
+				ClientCommandManager.argument("value", DoubleArgumentType.doubleArg(min, max)).executes(ctx -> {
 					double v = DoubleArgumentType.getDouble(ctx, "value");
 					setter.accept(v);
 					MotionCameraConfig.save();
